@@ -1,0 +1,22 @@
+
+
+#app {
+  height: 568px;
+  width: 320px;
+  background: honeydew;
+}
+
+.displayArea {
+  height: 463px;
+  width: 100%;
+  background: white;
+}
+
+
+.green {
+  background-color: green;
+}
+
+.red {
+  background-color: orangered;
+}
