@@ -14,9 +14,30 @@
 
 
 .green {
-  background-color: green;
+  background-color: #2ECC40;
 }
 
 .red {
-  background-color: orangered;
+  background-color: #FF4136;
+}
+
+
+.early-bg-color {
+  background-color: #0074D9;
+}
+
+.onTime-bg-color{
+  background-color: #2ECC40;
+}
+
+.littleLate-bg-color {
+  background-color: #FF851B;
+}
+
+.late-bg-color {
+  background-color: #FF4136;
+}
+
+.veryLate-bg-color {
+  background-color: #85144b;
 }

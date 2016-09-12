@@ -2,7 +2,7 @@ var $ = require("jQuery");
 import React from "react";
 import ReactDOM from "react-dom";
 import Button from "./Button";
-    import DisplayArea from "./DisplayArea";
+import DisplayArea from "./DisplayArea";
 import BusAnim from "./BusAnim";
 
 var time = {
@@ -53,13 +53,6 @@ var oneBusUrl = "http://api.pugetsound.onebusaway.org/api/where/" + route + D_LI
 var marketStreetTestUrl = "http://api.pugetsound.onebusaway.org/api/where/arrivals-and-departures-for-stop/" + marketStop.id + ".json?key=" + oneBusKey
 
 
-$(".box1").css({
-  "height"            : "300px",
-  "width"             : "1000px",
-  "background-color"  : time.onTime
-})
-
-
 var apiButton = "<button class='apiButton'>Test API</button>";
 
 var apiButton2 = "<button class='apiButton2'>Test Market Street API</button>";
@@ -69,146 +62,39 @@ $(".box1").append([apiButton, apiButton2]);
 var nextArrival = {};
 var delayedBy;
 
-$(".apiButton").click(function() {
-  $.ajax({
-    url: oneBusUrl,
-    dataType: "jsonp",
-  })
-  .done(function(busData) {
-    // console.log(oneBusUrl);
-    // console.log(busData);
-
-
-  })
-  .fail(function() {
-    console.log("error");
-  })
-  .always(function() {
-    console.log("complete");
-  });
-})
-
-
-$(".apiButton2").click(function() {
-  $.ajax({
-    url: marketStreetTestUrl,
-    dataType: "jsonp",
-  })
-  .done(function(busData) {
-    // console.log(marketStreetTestUrl);
-    // console.log(busData);
-
-    // TODO Figure out why this date stuff isn't working! (It's because it should be figuring out the difference and only presenting minutes instead of a full time!!)
-
-    var nextArrival       = busData.data.entry.arrivalsAndDepartures[0];
-    var delayedBy         = nextArrival.tripStatus.scheduleDeviation;
-    var predictedArrival  = nextArrival.predictedArrivalTime;
-
-    var now     = new Date().getTime()
-    var busDate = new Date(predictedArrival)
-
-    var timeToStop = new Date(busDate - now);
-
-    var hours     =       timeToStop.getHours();
-    var minutes   = "0" + timeToStop.getMinutes();
-    var seconds   = "0" + timeToStop.getSeconds();
-
-    var formattedTimeToStop = hours + ":" + minutes.substr(-2) + ":" + seconds.substr(-2);
-
-    console.log(formattedTimeToStop);
 
 
 
-    if (delayedBy >= 0) {
-      $(".box1").css("background-color", time.onTime);
-    } else if (delayedBy > 120) {
-      $(".box1").css("background-color", time.littleLate);
-    } else if (delayedBy > 300) {
-      $(".box1").css("background-color", time.late);
-    } else if (delayedBy > 1000) {
-      $(".box1").css("background-color", time.veryLate);
-    } else if (delayedBy < 0) {
-      $(".box1").css("background-color", time.early);
-    }
-
-    $(".box-text").text("Bus is delayed by: " + Math.round(delayedBy / 60) + " minutes");
-    console.log("Complete data:")
-    console.log(nextArrival)
-    console.log("Delayed by: " + delayedBy / 60 + " minutes")
-
-  })
-  .fail(function() {
-    console.log("error");
-  })
-  .always(function() {
-    console.log("complete");
-  });
-})
+// $(".apiButton").click(function() {
+//   $.ajax({
+//     url: oneBusUrl,
+//     dataType: "jsonp",
+//   })
+//   .done(function(busData) {
+//     // console.log(oneBusUrl);
+//     // console.log(busData);
+//
+//
+//   })
+//   .fail(function() {
+//     console.log("error");
+//   })
+//   .always(function() {
+//     console.log("complete");
+//   });
+// })
+//
+//
 
 
 class App extends React.Component {
 
-  clickFunction() {
-    console.log("clickfunction clicked");
-  }
-  reactMarketApi() {
-    $.ajax({
-      url: marketStreetTestUrl,
-      dataType: "jsonp",
-    })
-    .done(function(busData) {
-      // console.log(marketStreetTestUrl);
-      // console.log(busData);
 
-      // TODO Figure out why this date stuff isn't working! (It's because it should be figuring out the difference and only presenting minutes instead of a full time!!)
-
-      var nextArrival       = busData.data.entry.arrivalsAndDepartures[0];
-      var delayedBy         = nextArrival.tripStatus.scheduleDeviation;
-      var predictedArrival  = nextArrival.predictedArrivalTime;
-
-      var now     = new Date().getTime()
-      var busDate = new Date(predictedArrival)
-
-      var timeToStop = new Date(busDate - now);
-
-      var hours     =       timeToStop.getHours();
-      var minutes   = "0" + timeToStop.getMinutes();
-      var seconds   = "0" + timeToStop.getSeconds();
-
-      var formattedTimeToStop = hours + ":" + minutes.substr(-2) + ":" + seconds.substr(-2);
-
-      console.log(formattedTimeToStop);
-
-
-
-      if (delayedBy >= 0) {
-        $(".box1").css("background-color", time.onTime);
-      } else if (delayedBy > 120) {
-        $(".box1").css("background-color", time.littleLate);
-      } else if (delayedBy > 300) {
-        $(".box1").css("background-color", time.late);
-      } else if (delayedBy > 1000) {
-        $(".box1").css("background-color", time.veryLate);
-      } else if (delayedBy < 0) {
-        $(".box1").css("background-color", time.early);
-      }
-
-      $(".box-text").text("Bus is delayed by: " + Math.round(delayedBy / 60) + " minutes");
-      console.log("Complete data:")
-      console.log(nextArrival)
-      console.log("Delayed by: " + delayedBy / 60 + " minutes")
-
-    })
-    .fail(function() {
-      console.log("error");
-    })
-  }
 
   render() {
     return (
       <div>
         <DisplayArea />
-        <Button name="react market api" clickFunc={this.reactMarketApi}/>
       </div>
     )
   }
