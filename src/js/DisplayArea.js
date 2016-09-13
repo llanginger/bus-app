@@ -5,14 +5,6 @@ import JumboTron from "./JumboTron";
 import classNames from "classnames";
 import $ from "jQuery"
 
-var time = {
-  early       : "#0074D9",
-  onTime      : "#2ECC40",
-  littleLate  : "#FF851B",
-  late        : "#FF4136",
-  veryLate    : "#85144b"
-}
-
 
 var timeToStop;
 
@@ -40,24 +32,27 @@ var marketStop = {
   wheelchairBoarding: "UNKNOWN"
 }
 
-var allRoutes = "route-ids-for-agency/1"
+let OneBusApi = {
+  baseUrl     : "http://api.pugetsound.onebusaway.org/api/where/",
+  allRoutes   : "route-ids-for-agency/1",
+  arrivalsDeparturesForStop : "arrivals-and-departures-for-stop/",
+  route       : "trips-for-route/",
+  key         : "?key=4f368d44-acaf-4922-8930-12a607f4ef44",
+  D_LINE_ID   : "1_102581"
+}
 
-var oneBusKey = "4f368d44-acaf-4922-8930-12a607f4ef44"
+// var allRoutes = "route-ids-for-agency/1"
 
-var route = "trips-for-route/"
+// var oneBusKey = "4f368d44-acaf-4922-8930-12a607f4ef44"
 
-var D_LINE_ID = "1_102581"
+// var route = "trips-for-route/"
 
-var oneBusUrl = "http://api.pugetsound.onebusaway.org/api/where/" + route + D_LINE_ID + ".json?key=" + oneBusKey + "&includeStatus=true";
+// var D_LINE_ID = "1_102581"
 
-var marketStreetTestUrl = "http://api.pugetsound.onebusaway.org/api/where/arrivals-and-departures-for-stop/" + marketStop.id + ".json?key=" + oneBusKey
+var oneBusUrl = OneBusApi.baseUrl + OneBusApi.route + OneBusApi.D_LINE_ID + ".json" + OneBusApi.key + "&includeStatus=true";
 
+var marketStreetTestUrl = OneBusApi.baseUrl + OneBusApi.arrivalsDeparturesForStop + marketStop.id + ".json" + OneBusApi.key
 
-var apiButton = "<button class='apiButton'>Test API</button>";
-
-var apiButton2 = "<button class='apiButton2'>Test Market Street API</button>";
-
-$(".box1").append([apiButton, apiButton2]);
 
 var nextArrival = {};
 var delayedBy;
@@ -118,9 +113,10 @@ class DisplayArea extends React.Component {
 
   reactMarketApi() {
 
+    runRecursive = false;
     runRecursive = true;
 
-    var recCall = () => {
+    let recCall = () => {
       setTimeout(() => {
         $.ajax({
           url: marketStreetTestUrl,
