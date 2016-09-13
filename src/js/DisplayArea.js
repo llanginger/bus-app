@@ -62,6 +62,7 @@ $(".box1").append([apiButton, apiButton2]);
 var nextArrival = {};
 var delayedBy;
 
+let runRecursive = true;
 
 class DisplayArea extends React.Component {
 
@@ -113,7 +114,11 @@ class DisplayArea extends React.Component {
     console.log("clickfunction clicked");
   }
 
+
+
   reactMarketApi() {
+
+    runRecursive = true;
 
     var recCall = () => {
       setTimeout(() => {
@@ -164,7 +169,9 @@ class DisplayArea extends React.Component {
           this.setState(this.setDelay(delayedBy, formattedTimeToStop));
           console.log(this.state)
 
-          recCall();
+          if (runRecursive === true) {
+            recCall();
+          }
 
           // this.setState(this.setDelay(delayedBy, formattedTimeToStop));
           // console.log(this.state)
@@ -181,6 +188,10 @@ class DisplayArea extends React.Component {
     recCall()
   }
 
+  killRecursive() {
+    console.log("Recursion killed");
+    runRecursive = false;
+  }
 
   setRed() {
     console.log(this.state.color)
@@ -201,7 +212,7 @@ class DisplayArea extends React.Component {
       <div className={"displayArea" + " " + this.state.color} >
         <JumboTron delay={this.state.delay} timeToStop={this.state.timeToStop}/>
         <BusAnim />
-        <Button name={"change from " + this.state.delay} clickFunc={this.setRed.bind(this)} />
+        <Button name="Kill Recursion" clickFunc={this.killRecursive.bind(this)} />
         <Button name="Is the D on time?" clickFunc={this.reactMarketApi.bind(this)}/>
       </div>
     )
