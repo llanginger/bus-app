@@ -68,38 +68,43 @@ class DisplayArea extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      color: "green",
-      delay: ""
+      color               : "green",
+      delay               : ""
     }
   }
 
-  setDelay(delay) {
+  setDelay(delay, timeToStop) {
     // delayedBy = 200
     console.log("set delay called")
     if (delay >= 0) {
       return {
         color: "onTime-bg-color",
-        delay: "On Time"
+        delay: "On Time",
+        timeToStop: timeToStop
       }
     } else if (delay > 120) {
       return {
         color: "littleLate-bg-color",
-        delay: "A Little Late"
+        delay: "A Little Late",
+        timeToStop: timeToStop
       }
     } else if (delay > 300) {
       return {
         color: "late-bg-color",
-        delay: "Late"
+        delay: "Late",
+        timeToStop: timeToStop
       }
     } else if (delay > 1000) {
       return {
         color: "varyLate-bg-color",
-        delay: "On Time"
+        delay: "On Time",
+        timeToStop: timeToStop
       }
     } else if (delay < 0) {
       return {
         color: "early-bg-color",
-        delay: "Early!"
+        delay: "Early!",
+        timeToStop: timeToStop
       }
     }
   }
@@ -110,53 +115,71 @@ class DisplayArea extends React.Component {
 
   reactMarketApi() {
 
-    $.ajax({
-      url: marketStreetTestUrl,
-      dataType: "jsonp",
-    })
-    .done((busData) => {
-      // console.log(marketStreetTestUrl);
-      // console.log(busData);
+    var recCall = () => {
+      setTimeout(() => {
+        $.ajax({
+          url: marketStreetTestUrl,
+          dataType: "jsonp",
+        })
+        .done((busData) => {
+          // console.log(marketStreetTestUrl);
+          // console.log(busData);
 
-      // TODO Figure out why this date stuff isn't working! (It's because it should be figuring out the difference and only presenting minutes instead of a full time!!)
+          // TODO Figure out why this date stuff isn't working! (It's because it should be figuring out the difference and only presenting minutes instead of a full time!!)
 
-      var nextArrival       = busData.data.entry.arrivalsAndDepartures[0];
-      var delayedBy         = nextArrival.tripStatus.scheduleDeviation;
-      var predictedArrival  = nextArrival.predictedArrivalTime;
+          var nextArrival       = busData.data.entry.arrivalsAndDepartures[0];
+          var delayedBy         = nextArrival.tripStatus.scheduleDeviation;
+          var predictedArrival  = nextArrival.predictedArrivalTime;
 
-      var now     = new Date().getTime()
-      var busDate = new Date(predictedArrival)
+          var now     = new Date().getTime()
+          var busDate = new Date(predictedArrival)
 
-      var timeToStop = new Date(busDate - now);
+          var timeToStop = new Date(busDate - now);
 
-      var hours     =       timeToStop.getHours();
-      var minutes   = "0" + timeToStop.getMinutes();
-      var seconds   = "0" + timeToStop.getSeconds();
+          var hours     =       timeToStop.getHours();
+          var minutes   = "0" + timeToStop.getMinutes();
+          var seconds   = "0" + timeToStop.getSeconds();
 
-      var formattedTimeToStop = hours + ":" + minutes.substr(-2) + ":" + seconds.substr(-2);
+          var formattedTimeToStop = hours + ":" + minutes.substr(-2) + ":" + seconds.substr(-2);
 
-      console.log(formattedTimeToStop);
+          console.log(formattedTimeToStop);
 
 
 
-      $(".box-text").text("Bus is delayed by: " + Math.round(delayedBy / 60) + " minutes");
-      console.log("Complete data:")
-      console.log(nextArrival)
-      console.log("Delayed by: " + delayedBy / 60 + " minutes")
+          $(".box-text").text("Bus is delayed by: " + Math.round(delayedBy / 60) + " minutes");
+          console.log("Complete data:")
+          console.log(nextArrival)
+          console.log("Delayed by: " + delayedBy / 60 + " minutes")
 
-      console.log("----------------------")
-      console.log(delayedBy)
+          console.log("----------------------")
+          console.log(delayedBy)
 
-      this.setState(this.setDelay(delayedBy));
-      console.log(this.state)
-      // console.log(this.state)
+          // var recSetState
 
-    })
-    .fail(function() {
-      console.log("error");
-    })
+          var hi = () => {console.log("hi")}
+
+          hi();
+
+
+          this.setState(this.setDelay(delayedBy, formattedTimeToStop));
+          console.log(this.state)
+
+          recCall();
+
+          // this.setState(this.setDelay(delayedBy, formattedTimeToStop));
+          // console.log(this.state)
+          // console.log(this.state)
+
+        })
+        .fail(function() {
+          console.log("error");
+        })
+      }, 1000)
+
+    }
+
+    recCall()
   }
-
 
 
   setRed() {
@@ -176,7 +199,7 @@ class DisplayArea extends React.Component {
     // })
     return(
       <div className={"displayArea" + " " + this.state.color} >
-        <JumboTron delay = {this.state.delay}/>
+        <JumboTron delay={this.state.delay} timeToStop={this.state.timeToStop}/>
         <BusAnim />
         <Button name={"change from " + this.state.delay} clickFunc={this.setRed.bind(this)} />
         <Button name="Is the D on time?" clickFunc={this.reactMarketApi.bind(this)}/>
