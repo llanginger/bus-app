@@ -141,31 +141,49 @@ class DisplayArea extends React.Component {
         let now     = new Date();
         let busDate = new Date(predictedArrival);
 
-        console.log("Full data:")
-        console.log(nextArrival)
-
-        console.log("----------------------------")
-
-        console.log("Now: " + now)
-        console.log("Predicted Arrival: " + busDate)
-
+        let nowYear = now.getFullYear();
         let nowHours = now.getHours();
         let nowMinutes = now.getMinutes();
         let nowSeconds = now.getSeconds();
 
+        let busYear = busDate.getFullYear();
         let busHours = busDate.getHours();
         let busMinutes = busDate.getMinutes();
         let busSeconds = busDate.getSeconds();
+
+
+        console.log("Now date info:")
+        console.log(nowYear)
+        console.log(nowHours)
+        console.log(nowMinutes)
+        console.log(nowSeconds)
+        console.log("Bus date info:")
+        console.log(busYear)
+        console.log(busHours)
+        console.log(busMinutes)
+        console.log(busSeconds)
 
         // console.log("testing new time formatting")
         // console.log((busHours - nowHours) + " Hours and " + (busMinutes - nowMinutes) + " Minutes and " + (busSeconds - nowSeconds) + " Seconds away")
 
 
+        let timeToStopFn = () => {
+          if (nowYear === busYear) {
+            let compMinutes = busMinutes - nowMinutes;
+            let compSeconds = busSeconds - nowSeconds;
+            if (compSeconds < 0) {
+              compMinutes -= 1;
+              compSeconds += 60;
+            }
+            console.log("Comp Minutes : " + compMinutes)
+            return compMinutes + " minutes and " + compSeconds + " seconds";
+          }
+        }
 
 
 
 
-        let timeToStop = ((busDate - now)/1000);
+        let timeToStop = (timeToStopFn());
 
         // let hours     =       timeToStop.getHours();
         // let minutes   = "0" + timeToStop.getMinutes();
@@ -176,13 +194,15 @@ class DisplayArea extends React.Component {
         // console.log(formattedTimeToStop);
 
 
-
-        $(".box-text").text("Bus is delayed by: " + Math.round(delayedBy / 60) + " minutes");
-
-        console.log("Delayed by: " + delayedBy / 60 + " minutes")
-
-        console.log("----------------------")
-        console.log(delayedBy)
+        console.log("Full data:")
+        console.log(nextArrival)
+        //
+        // console.log("----------------------------")
+        //
+        // console.log("Now: " + now)
+        // console.log("Predicted Arrival: " + busDate)
+        //
+        // console.log("Delayed by: " + delayedBy / 60 + " minutes")
 
 
         this.setState(this.setDelay(delayedBy, timeToStop));
