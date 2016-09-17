@@ -3,8 +3,15 @@ import BusAnim from "./BusAnim";
 import Button from "./Button";
 import JumboTron from "./JumboTron";
 import classNames from "classnames";
-import $ from "jQuery"
+import $ from "jQuery";
+import Dropdown from "./Dropdown";
 
+
+if (typeof window !== 'undefined') {
+  window.React = React;
+}
+
+let listItems = ["Thing 1", "thing 2", "another thing", "One more"]
 
 var timeToStop;
 
@@ -49,9 +56,9 @@ let OneBusApi = {
 
 // var D_LINE_ID = "1_102581"
 
-var oneBusUrl = OneBusApi.baseUrl + OneBusApi.route + OneBusApi.D_LINE_ID + ".json" + OneBusApi.key + "&includeStatus=true";
+let oneBusUrl = OneBusApi.baseUrl + OneBusApi.route + OneBusApi.D_LINE_ID + ".json" + OneBusApi.key + "&includeStatus=true";
 
-var marketStreetTestUrl = OneBusApi.baseUrl + OneBusApi.arrivalsDeparturesForStop + marketStop.id + ".json" + OneBusApi.key
+let marketStreetTestUrl = OneBusApi.baseUrl + OneBusApi.arrivalsDeparturesForStop + marketStop.id + ".json" + OneBusApi.key
 
 
 var nextArrival = {};
@@ -76,39 +83,39 @@ class DisplayArea extends React.Component {
       return {
         color: "onTime-bg-color",
         delay: "On Time",
+        delayedBy: delay,
         timeToStop: timeToStop
       }
     } else if (delay > 120) {
       return {
         color: "littleLate-bg-color",
         delay: "A Little Late",
+        delayedBy: delay,
         timeToStop: timeToStop
       }
     } else if (delay > 300) {
       return {
         color: "late-bg-color",
         delay: "Late",
+        delayedBy: delay,
         timeToStop: timeToStop
       }
     } else if (delay > 1000) {
       return {
         color: "varyLate-bg-color",
         delay: "On Time",
+        delayedBy: delay,
         timeToStop: timeToStop
       }
     } else if (delay < 0) {
       return {
         color: "early-bg-color",
         delay: "Early!",
+        delayedBy: delay,
         timeToStop: timeToStop
       }
     }
   }
-
-  clickFunction() {
-    console.log("clickfunction clicked");
-  }
-
 
 
   reactMarketApi() {
@@ -117,68 +124,82 @@ class DisplayArea extends React.Component {
     runRecursive = true;
 
     let recCall = () => {
-      setTimeout(() => {
-        $.ajax({
-          url: marketStreetTestUrl,
-          dataType: "jsonp",
-        })
-        .done((busData) => {
-          // console.log(marketStreetTestUrl);
-          // console.log(busData);
+      $.ajax({
+        url: marketStreetTestUrl,
+        dataType: "jsonp",
+      })
+      .done((busData) => {
+        // console.log(marketStreetTestUrl);
+        // console.log(busData);
 
-          // TODO Figure out why this date stuff isn't working! (It's because it should be figuring out the difference and only presenting minutes instead of a full time!!)
+        // TODO Figure out why this date stuff isn't working! (It's because it should be figuring out the difference and only presenting minutes instead of a full time!!)
 
-          var nextArrival       = busData.data.entry.arrivalsAndDepartures[0];
-          var delayedBy         = nextArrival.tripStatus.scheduleDeviation;
-          var predictedArrival  = nextArrival.predictedArrivalTime;
+        let nextArrival       = busData.data.entry.arrivalsAndDepartures[0];
+        let delayedBy         = nextArrival.tripStatus.scheduleDeviation;
+        let predictedArrival  = nextArrival.predictedArrivalTime;
 
-          var now     = new Date().getTime()
-          var busDate = new Date(predictedArrival)
+        let now     = new Date();
+        let busDate = new Date(predictedArrival);
 
-          var timeToStop = new Date(busDate - now);
+        console.log("Full data:")
+        console.log(nextArrival)
 
-          var hours     =       timeToStop.getHours();
-          var minutes   = "0" + timeToStop.getMinutes();
-          var seconds   = "0" + timeToStop.getSeconds();
+        console.log("----------------------------")
 
-          var formattedTimeToStop = hours + ":" + minutes.substr(-2) + ":" + seconds.substr(-2);
+        console.log("Now: " + now)
+        console.log("Predicted Arrival: " + busDate)
 
-          console.log(formattedTimeToStop);
+        let nowHours = now.getHours();
+        let nowMinutes = now.getMinutes();
+        let nowSeconds = now.getSeconds();
 
+        let busHours = busDate.getHours();
+        let busMinutes = busDate.getMinutes();
+        let busSeconds = busDate.getSeconds();
 
-
-          $(".box-text").text("Bus is delayed by: " + Math.round(delayedBy / 60) + " minutes");
-          console.log("Complete data:")
-          console.log(nextArrival)
-          console.log("Delayed by: " + delayedBy / 60 + " minutes")
-
-          console.log("----------------------")
-          console.log(delayedBy)
-
-          // var recSetState
-
-          var hi = () => {console.log("hi")}
-
-          hi();
+        // console.log("testing new time formatting")
+        // console.log((busHours - nowHours) + " Hours and " + (busMinutes - nowMinutes) + " Minutes and " + (busSeconds - nowSeconds) + " Seconds away")
 
 
-          this.setState(this.setDelay(delayedBy, formattedTimeToStop));
-          console.log(this.state)
 
-          if (runRecursive === true) {
+
+
+
+        let timeToStop = ((busDate - now)/1000);
+
+        // let hours     =       timeToStop.getHours();
+        // let minutes   = "0" + timeToStop.getMinutes();
+        // let seconds   = "0" + timeToStop.getSeconds();
+        //
+        // var formattedTimeToStop = hours + ":" + minutes.substr(-2) + ":" + seconds.substr(-2);
+
+        // console.log(formattedTimeToStop);
+
+
+
+        $(".box-text").text("Bus is delayed by: " + Math.round(delayedBy / 60) + " minutes");
+
+        console.log("Delayed by: " + delayedBy / 60 + " minutes")
+
+        console.log("----------------------")
+        console.log(delayedBy)
+
+
+        this.setState(this.setDelay(delayedBy, timeToStop));
+        console.log(this.state)
+
+        if (runRecursive === true) {
+          // Recurse
+          setTimeout(() => {
             recCall();
-          }
+          }, 1000)
+        }
 
-          // this.setState(this.setDelay(delayedBy, formattedTimeToStop));
-          // console.log(this.state)
-          // console.log(this.state)
 
-        })
-        .fail(function() {
-          console.log("error");
-        })
-      }, 1000)
-
+      })
+      .fail(function() {
+        console.log("error");
+      })
     }
 
     recCall()
@@ -189,27 +210,16 @@ class DisplayArea extends React.Component {
     runRecursive = false;
   }
 
-  setRed() {
-    console.log(this.state.color)
-    if (this.state.color === "green") {
-      return this.setState({color: "red"})
-    } else {
-      return this.setState({color: "green"})
-    }
-
-  }
 
   render() {
-    // var daClass = classNames({
-    //   "displayArea": true,
-    //   this.state.color: this.state.color
-    // })
+
     return(
       <div className={"displayArea" + " " + this.state.color} >
-        <JumboTron delay={this.state.delay} timeToStop={this.state.timeToStop}/>
+        <JumboTron delay={this.state.delay} timeToStop={this.state.timeToStop} delayedBy={this.state.delayedBy}/>
         <BusAnim />
-        <Button name="Kill Recursion" clickFunc={this.killRecursive.bind(this)} />
+        <Button name="Kill Recursion" class="topButton" clickFunc={this.killRecursive.bind(this)} />
         <Button name="Is the D on time?" clickFunc={this.reactMarketApi.bind(this)}/>
+        <Dropdown listContent={listItems}/>
       </div>
     )
   }

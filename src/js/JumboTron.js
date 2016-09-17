@@ -5,6 +5,7 @@ class JumboTron extends React.Component {
     return(
       <div>
         <h3>The Bus is: {this.props.delay}</h3>
+        <h4>Is {this.props.delayedBy} behind/ahead of schedule</h4>
         <h4>and is {this.props.timeToStop} away</h4>
       </div>
     )

@@ -41,3 +41,19 @@
 .veryLate-bg-color {
   background-color: #85144b;
 }
+
+button {
+  width: 100%;
+}
+
+.topButton {
+  margin-top: 200px;
+}
+
+.open{
+  display: block;
+}
+
+.closed {
+  display: none;
+}
