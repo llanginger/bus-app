@@ -5,11 +5,13 @@ import JumboTron from "./JumboTron";
 import classNames from "classnames";
 import $ from "jQuery";
 import Dropdown from "./Dropdown";
+// import testFunc from "./testFunc";
 
 
 if (typeof window !== 'undefined') {
   window.React = React;
 }
+
 
 let listItems = ["Thing 1", "thing 2", "another thing", "One more"]
 
@@ -66,7 +68,24 @@ var delayedBy;
 
 let runRecursive = true;
 
+// let recCall = () => {
+//   doAjaxRequest( function(result) {
+//     console.log("New ajax function result: ")
+//     console.log(result)
+//     return result;
+//   })
+//
+// }
+
+
+
+
+// TODO Refactor this code so that the .done has a callback function that returns the data so that in the main "recCall" function I have a function that modifies a property
+
+
 class DisplayArea extends React.Component {
+
+
 
   constructor(props) {
     super(props);
@@ -74,155 +93,143 @@ class DisplayArea extends React.Component {
       color               : "green",
       delay               : ""
     }
+    this._setDelay = this._setDelay.bind(this)
   }
 
-  setDelay(delay, timeToStop) {
+  doAjaxRequest() {
+    $.ajax({
+      url: marketStreetTestUrl,
+      dataType: "jsonp",
+    })
+    .done((busData) => {
+
+      let nextArrival       = busData.data.entry.arrivalsAndDepartures[0];
+      let delayedBy         = nextArrival.tripStatus.scheduleDeviation;
+      let predictedArrival  = nextArrival.predictedArrivalTime;
+
+      let now     = new Date();
+      let busDate = new Date(predictedArrival);
+
+      let nowYear = now.getFullYear();
+      let nowHours = now.getHours();
+      let nowMinutes = now.getMinutes();
+      let nowSeconds = now.getSeconds();
+
+      let busYear = busDate.getFullYear();
+      let busHours = busDate.getHours();
+      let busMinutes = busDate.getMinutes();
+      let busSeconds = busDate.getSeconds();
+
+
+      // console.log("Now date info: " + nowYear + " " + nowHours + " " + nowMinutes + " " + nowSeconds)
+      //
+      // console.log("Bus date info: " +  + busYear + " " + busHours + " " + busMinutes + " " + busSeconds)
+
+      let timeToStopFn = () => {
+        if (nowYear === busYear) {
+          let compMinutes = busMinutes - nowMinutes;
+          let compSeconds = busSeconds - nowSeconds;
+          if (compSeconds < 0) {
+            compMinutes -= 1;
+            compSeconds += 60;
+          }
+          // if (compMinutes < 0) {
+          //   compMinutes += 60;
+          // }
+          // console.log("Comp Minutes : " + compMinutes)
+          return compMinutes + " minutes and " + compSeconds + " seconds";
+        }
+      }
+
+      let timeToStop = (timeToStopFn());
+
+      this.setState(this._setDelay(delayedBy, timeToStop));
+      console.log(this.state)
+
+
+
+
+      // console.log("Full data:")
+      // console.log(nextArrival)
+
+
+
+
+
+    })
+    .fail(function(error) {
+      console.log(error);
+    })
+  }
+
+
+  _setDelay(delay, timeToStop) {
     // delayedBy = 200
-    console.log("set delay called")
-    if (delay >= 0) {
+    // console.log("set delay called")
+    // console.log("delayed by: " + delay)
+    if (delay >= 0 && delay < 120) {
       return {
         color: "onTime-bg-color",
         delay: "On Time",
-        delayedBy: delay,
+        delayedBy: Math.round(delay / 60),
         timeToStop: timeToStop
       }
-    } else if (delay > 120) {
+    } else if (delay > 120 && delay < 300) {
       return {
         color: "littleLate-bg-color",
         delay: "A Little Late",
-        delayedBy: delay,
+        delayedBy: Math.round(delay / 60),
         timeToStop: timeToStop
       }
-    } else if (delay > 300) {
+    } else if (delay > 300 && delay < 999) {
       return {
         color: "late-bg-color",
         delay: "Late",
-        delayedBy: delay,
+        delayedBy: Math.round(delay / 60),
         timeToStop: timeToStop
       }
     } else if (delay > 1000) {
       return {
-        color: "varyLate-bg-color",
-        delay: "On Time",
-        delayedBy: delay,
+        color: "veryLate-bg-color",
+        delay: "Very Late!",
+        delayedBy: Math.round(delay / 60),
         timeToStop: timeToStop
       }
     } else if (delay < 0) {
       return {
         color: "early-bg-color",
         delay: "Early!",
-        delayedBy: delay,
+        delayedBy: Math.round(delay / 60),
         timeToStop: timeToStop
       }
     }
   }
 
 
+
+
+
+
   reactMarketApi() {
+
 
     runRecursive = false;
     runRecursive = true;
 
-    let recCall = () => {
-      $.ajax({
-        url: marketStreetTestUrl,
-        dataType: "jsonp",
-      })
-      .done((busData) => {
-        // console.log(marketStreetTestUrl);
-        // console.log(busData);
+    let runAjax = () => {
 
-        // TODO Figure out why this date stuff isn't working! (It's because it should be figuring out the difference and only presenting minutes instead of a full time!!)
+      this.doAjaxRequest();
 
-        let nextArrival       = busData.data.entry.arrivalsAndDepartures[0];
-        let delayedBy         = nextArrival.tripStatus.scheduleDeviation;
-        let predictedArrival  = nextArrival.predictedArrivalTime;
-
-        let now     = new Date();
-        let busDate = new Date(predictedArrival);
-
-        let nowYear = now.getFullYear();
-        let nowHours = now.getHours();
-        let nowMinutes = now.getMinutes();
-        let nowSeconds = now.getSeconds();
-
-        let busYear = busDate.getFullYear();
-        let busHours = busDate.getHours();
-        let busMinutes = busDate.getMinutes();
-        let busSeconds = busDate.getSeconds();
-
-
-        console.log("Now date info:")
-        console.log(nowYear)
-        console.log(nowHours)
-        console.log(nowMinutes)
-        console.log(nowSeconds)
-        console.log("Bus date info:")
-        console.log(busYear)
-        console.log(busHours)
-        console.log(busMinutes)
-        console.log(busSeconds)
-
-        // console.log("testing new time formatting")
-        // console.log((busHours - nowHours) + " Hours and " + (busMinutes - nowMinutes) + " Minutes and " + (busSeconds - nowSeconds) + " Seconds away")
-
-
-        let timeToStopFn = () => {
-          if (nowYear === busYear) {
-            let compMinutes = busMinutes - nowMinutes;
-            let compSeconds = busSeconds - nowSeconds;
-            if (compSeconds < 0) {
-              compMinutes -= 1;
-              compSeconds += 60;
-            }
-            console.log("Comp Minutes : " + compMinutes)
-            return compMinutes + " minutes and " + compSeconds + " seconds";
-          }
-        }
-
-
-
-
-        let timeToStop = (timeToStopFn());
-
-        // let hours     =       timeToStop.getHours();
-        // let minutes   = "0" + timeToStop.getMinutes();
-        // let seconds   = "0" + timeToStop.getSeconds();
-        //
-        // var formattedTimeToStop = hours + ":" + minutes.substr(-2) + ":" + seconds.substr(-2);
-
-        // console.log(formattedTimeToStop);
-
-
-        console.log("Full data:")
-        console.log(nextArrival)
-        //
-        // console.log("----------------------------")
-        //
-        // console.log("Now: " + now)
-        // console.log("Predicted Arrival: " + busDate)
-        //
-        // console.log("Delayed by: " + delayedBy / 60 + " minutes")
-
-
-        this.setState(this.setDelay(delayedBy, timeToStop));
-        console.log(this.state)
-
-        if (runRecursive === true) {
-          // Recurse
-          setTimeout(() => {
-            recCall();
-          }, 1000)
-        }
-
-
-      })
-      .fail(function() {
-        console.log("error");
-      })
+      if (runRecursive === true) {
+        // Recurse
+        setTimeout(() => {
+          runAjax();
+        }, 1000)
+      }
     }
 
-    recCall()
+    runAjax();
+
   }
 
   killRecursive() {
