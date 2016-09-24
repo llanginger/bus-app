@@ -5,6 +5,7 @@ import JumboTron from "./JumboTron";
 import classNames from "classnames";
 import $ from "jQuery";
 import Dropdown from "./Dropdown";
+import AjaxDropdown from "./AjaxDropdown";
 // import testFunc from "./testFunc";
 
 
@@ -242,6 +243,7 @@ class DisplayArea extends React.Component {
 
     return(
       <div className={"displayArea" + " " + this.state.color} >
+        <AjaxDropdown ajaxUrl={"http://api.pugetsound.onebusaway.org/api/where/stops-for-location.json?key=TEST&lat=47.653435&lon=-122.305641&radius=200"} listContent={listItems}/>
         <JumboTron delay={this.state.delay} timeToStop={this.state.timeToStop} delayedBy={this.state.delayedBy}/>
         <BusAnim />
         <Button name="Kill Recursion" class="topButton" clickFunc={this.killRecursive.bind(this)} />
