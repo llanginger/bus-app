@@ -6,26 +6,22 @@ import classNames from "classnames";
 import $ from "jQuery";
 import Dropdown from "./Dropdown";
 import AjaxDropdown from "./AjaxDropdown";
-// import testFunc from "./testFunc";
 
 
 if (typeof window !== 'undefined') {
   window.React = React;
 }
 
-
-let listItems = ["Thing 1", "thing 2", "another thing", "One more"]
-
 var timeToStop;
 
 var params = {};
 
-var myPos = {
+const myPos = {
   lat   : "47.668674",
   lon   : "-122.376324"
 }
 
-var marketStop = {
+const marketStop = {
   code: "13721",
   direction: "S",
   id: "1_13721",
@@ -42,7 +38,7 @@ var marketStop = {
   wheelchairBoarding: "UNKNOWN"
 }
 
-let OneBusApi = {
+const OneBusApi = {
   baseUrl     : "http://api.pugetsound.onebusaway.org/api/where/",
   allRoutes   : "route-ids-for-agency/1",
   arrivalsDeparturesForStop : "arrivals-and-departures-for-stop/",
@@ -51,37 +47,16 @@ let OneBusApi = {
   D_LINE_ID   : "1_102581"
 }
 
-// var allRoutes = "route-ids-for-agency/1"
 
-// var oneBusKey = "4f368d44-acaf-4922-8930-12a607f4ef44"
+const oneBusUrl = OneBusApi.baseUrl + OneBusApi.route + OneBusApi.D_LINE_ID + ".json" + OneBusApi.key + "&includeStatus=true";
 
-// var route = "trips-for-route/"
-
-// var D_LINE_ID = "1_102581"
-
-let oneBusUrl = OneBusApi.baseUrl + OneBusApi.route + OneBusApi.D_LINE_ID + ".json" + OneBusApi.key + "&includeStatus=true";
-
-let marketStreetTestUrl = OneBusApi.baseUrl + OneBusApi.arrivalsDeparturesForStop + marketStop.id + ".json" + OneBusApi.key
+const marketStreetTestUrl = OneBusApi.baseUrl + OneBusApi.arrivalsDeparturesForStop + marketStop.id + ".json" + OneBusApi.key
 
 
 var nextArrival = {};
 var delayedBy;
 
 let runRecursive = true;
-
-// let recCall = () => {
-//   doAjaxRequest( function(result) {
-//     console.log("New ajax function result: ")
-//     console.log(result)
-//     return result;
-//   })
-//
-// }
-
-
-
-
-// TODO Refactor this code so that the .done has a callback function that returns the data so that in the main "recCall" function I have a function that modifies a property
 
 
 class DisplayArea extends React.Component {
@@ -108,28 +83,31 @@ class DisplayArea extends React.Component {
       let delayedBy         = nextArrival.tripStatus.scheduleDeviation;
       let predictedArrival  = nextArrival.predictedArrivalTime;
 
-      let now     = new Date();
-      let busDate = new Date(predictedArrival);
+      let nowDate     = new Date();
+      let busDate     = new Date(predictedArrival);
 
-      let nowYear = now.getFullYear();
-      let nowHours = now.getHours();
-      let nowMinutes = now.getMinutes();
-      let nowSeconds = now.getSeconds();
+      let now = {
+        year    : nowDate.getFullYear(),
+        hours   : nowDate.getHours(),
+        minutes : nowDate.getMinutes(),
+        seconds : nowDate.getSeconds(),
+      }
 
-      let busYear = busDate.getFullYear();
-      let busHours = busDate.getHours();
-      let busMinutes = busDate.getMinutes();
-      let busSeconds = busDate.getSeconds();
+      let bus = {
+        year    : busDate.getFullYear(),
+        hours   : busDate.getHours(),
+        minutes : busDate.getMinutes(),
+        seconds : busDate.getSeconds(),
+      }
 
-
-      // console.log("Now date info: " + nowYear + " " + nowHours + " " + nowMinutes + " " + nowSeconds)
+      // console.log("Now date info: " + now.year + " " + now.hours + " " + now.minutes + " " + now.seconds)
       //
-      // console.log("Bus date info: " +  + busYear + " " + busHours + " " + busMinutes + " " + busSeconds)
+      // console.log("Bus date info: " +  + bus.year + " " + bus.hours + " " + bus.minutes + " " + bus.seconds)
 
       let timeToStopFn = () => {
-        if (nowYear === busYear) {
-          let compMinutes = busMinutes - nowMinutes;
-          let compSeconds = busSeconds - nowSeconds;
+        if (now.year === bus.year) {
+          let compMinutes = bus.minutes - now.minutes;
+          let compSeconds = bus.seconds - now.seconds;
           if (compSeconds < 0) {
             compMinutes -= 1;
             compSeconds += 60;
@@ -148,15 +126,6 @@ class DisplayArea extends React.Component {
       console.log(this.state)
 
 
-
-
-      // console.log("Full data:")
-      // console.log(nextArrival)
-
-
-
-
-
     })
     .fail(function(error) {
       console.log(error);
@@ -165,9 +134,7 @@ class DisplayArea extends React.Component {
 
 
   _setDelay(delay, timeToStop) {
-    // delayedBy = 200
-    // console.log("set delay called")
-    // console.log("delayed by: " + delay)
+    console.log("delayed by: " + delay)
     if (delay >= 0 && delay < 120) {
       return {
         color: "onTime-bg-color",
@@ -206,18 +173,13 @@ class DisplayArea extends React.Component {
     }
   }
 
-
-
-
-
-
   reactMarketApi() {
 
 
     runRecursive = false;
     runRecursive = true;
 
-    let runAjax = () => {
+    const runAjax = () => {
 
       this.doAjaxRequest();
 
@@ -243,12 +205,11 @@ class DisplayArea extends React.Component {
 
     return(
       <div className={"displayArea" + " " + this.state.color} >
-        <AjaxDropdown ajaxUrl={"http://api.pugetsound.onebusaway.org/api/where/stops-for-location.json?key=TEST&lat=47.653435&lon=-122.305641&radius=200"} listContent={listItems}/>
+        <AjaxDropdown ajaxUrl={"http://api.pugetsound.onebusaway.org/api/where/stops-for-location.json?key=TEST&lat=47.653435&lon=-122.305641&radius=200"} />
         <JumboTron delay={this.state.delay} timeToStop={this.state.timeToStop} delayedBy={this.state.delayedBy}/>
         <BusAnim />
         <Button name="Kill Recursion" class="topButton" clickFunc={this.killRecursive.bind(this)} />
         <Button name="Is the D on time?" clickFunc={this.reactMarketApi.bind(this)}/>
-        <Dropdown listContent={listItems}/>
       </div>
     )
   }

@@ -21,12 +21,7 @@ class Dropdown extends React.Component {
 
 
   renderListItems() {
-    let items = [];
-    this.props.listContent.map(function(item, i){
-      items.push(<ListItem content={item} key={i}/>)
-    })
-
-    return items;
+    return this.props.listContent.map((item, i) => <ListItem content={item} key={i}/>)
   }
 
   render() {
@@ -48,101 +43,10 @@ class Dropdown extends React.Component {
 
 }
 
+const t = React.PropTypes
+
+Dropdown.propTypes = {
+  listContent: t.array.isRequired
+}
 
 export default Dropdown;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//
-//
-//
-//
-//
-//
-//
-//
-//
-// var Dropdown = React.createClass({
-//     getInitialState: function() {
-//         return {
-//             listVisible: false
-//         };
-//     },
-//
-//     select: function(item) {
-//         this.props.selected = item;
-//     },
-//
-//     show: function() {
-//         this.setState({ listVisible: true });
-//         document.addEventListener("click", this.hide);
-//     },
-//
-//     hide: function() {
-//         this.setState({ listVisible: false });
-//         document.removeEventListener("click", this.hide);
-//     },
-//
-//     render: function() {
-//         return <div className={"dropdown-container" + (this.state.listVisible ? " show" : "")}>
-//             <div className={"dropdown-display" + (this.state.listVisible ? " clicked": "")} onClick={this.show}>
-//                 <span style={{ color: this.props.selected.hex }}>{this.props.selected.name}</span>
-//                 <i className="fa fa-angle-down"></i>
-//             </div>
-//             <div className="dropdown-list">
-//                 <div>
-//                     {this.renderListItems()}
-//                 </div>
-//             </div>
-//         </div>;
-//     },
-//
-//     renderListItems: function() {
-//         var items = [];
-//         for (var i = 0; i < this.props.list.length; i++) {
-//             var item = this.props.list[i];
-//             items.push(<div onClick={this.select.bind(null, item)}>
-//                 <span style={{ color: item.hex }}>{item.name}</span>
-//             </div>);
-//         }
-//         return items;
-//     }
-// });
-
-
-//
-// React.render(<Dropdown list={colours} selected={colours[0]} />, document.getElementById("container"));
